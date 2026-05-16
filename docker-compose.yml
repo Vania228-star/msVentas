@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  # 1. Base de Datos MySQL
+  database:
+    image: mysql:8.0
+    container_name: fitproyect-mysql
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: fitproject_ventas
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  # 2. Microservicio Core de Ventas
+  ms-ventas:
+    build:
+      context: ./msVentas
+    container_name: bff-ms-ventas
+    ports:
+      - "8080:8080"
+    depends_on:
+      - database
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://database:3306/fitproject_ventas?createDatabaseIfNotExist=true&serverTimezone=UTC
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+
+  # 3. Backend For Frontend (BFF)
+  bff-ventas:
+    build:
+      context: ./bff-ventas
+    container_name: bff-api-gateway
+    ports:
+      - "8081:8081"
+    depends_on:
+      - ms-ventas
+
+  # 4. Interfaz Gráfica (Frontend)
+  front-ventas:
+    build:
+      context: ./front-ventas
+    container_name: bff-frontend
+    ports:
+      - "4173:80"
+    depends_on:
+      - bff-ventas
+
+volumes:
+  mysql_data:

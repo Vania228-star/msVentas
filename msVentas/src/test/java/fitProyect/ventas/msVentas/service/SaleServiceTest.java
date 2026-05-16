@@ -1,5 +1,6 @@
 package fitProyect.ventas.msVentas.service;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,6 +24,7 @@ public class SaleServiceTest {
     @Test
     public void testGuardarVentaExitosamente() {
         Sale ventaMock = Sale.builder()
+                            .saleId("mock-uuid-1234")
                             .userId("user-123")
                             .projectId("project-999")
                             .amount(25000.0)
@@ -32,6 +34,8 @@ public class SaleServiceTest {
         when(saleRepository.save(ventaMock)).thenReturn(ventaMock);
 
         Sale resultado = saleService.save(ventaMock);
+        
         assertNotNull(resultado);
+        assertEquals("mock-uuid-1234", resultado.getSaleId());
     }
 }
